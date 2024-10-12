@@ -1,0 +1,148 @@
+#Initial Configurations
+import turtle
+import pygame
+
+# Initializing the sound mixer (pygame library)
+pygame.mixer.init()
+
+def play_sound():
+    sound = pygame.mixer.Sound('pong.wav')
+    sound.play()
+
+# Window initializer
+
+wn = turtle.Screen()
+wn.title('Pong by Bianca BC')
+wn.bgcolor("black")
+wn.setup(width=800,height=600)
+wn.tracer(0)
+
+game_on = True
+
+#Scores
+score_a = 0
+score_b = 0
+
+#Pen
+pen = turtle.Turtle()
+pen.speed(0)
+pen.color('white')
+pen.penup()
+pen.hideturtle()
+pen.goto(0,260)
+
+def write():
+    pen.write('Player A: {} - Player B: {}'.format(score_a,score_b),
+          align='center',
+          font=('Arial', 24, 'normal'))
+
+# Function for paddles and ball shape, generic
+def objects(paddle,position, stretch):
+    #paddle = turtle.Turtle()
+    paddle.speed(0)  # speed of animation, not movement
+    paddle.shape('square')  # by default, 20px x 20px
+    paddle.color('white')
+    paddle.shapesize(stretch_wid=stretch, stretch_len=1)
+    paddle.penup()
+    paddle.goto(position, 0)
+
+# Paddle A
+paddle_a = turtle.Turtle() #creating a brand new, empty list var
+objects(paddle_a,-350, 5)
+
+# Paddle B
+paddle_b = turtle.Turtle() #creating a brand new, empty list var
+objects(paddle_b,350, 5)
+
+# Ball
+ball= turtle.Turtle()
+objects(ball,0,1)
+
+# Moving Functions
+def paddle_a_up():
+    y = paddle_a.ycor() #ycor returns the y coordinates
+    y += 20
+    paddle_a.sety(y)
+
+def paddle_b_up():
+    y = paddle_b.ycor() #ycor returns the y coordinates
+    y += 20
+    paddle_b.sety(y)
+
+
+def paddle_a_down():
+    y = paddle_a.ycor()  # ycor returns the y coordinates
+    y += -20
+    paddle_a.sety(y)
+
+
+def paddle_b_down():
+    y = paddle_b.ycor()  # ycor returns the y coordinates
+    y += -20
+    paddle_b.sety(y)
+
+
+# Keyboard Binding
+wn.listen()
+
+wn.onkeypress(paddle_a_up, 'w') #w stands for up, in this case
+wn.onkeypress(paddle_b_up, 'Up') #keysym Up stands for up, in this case
+wn.onkeypress(paddle_a_down, 's') #s stands for down, in this case
+wn.onkeypress(paddle_b_down, 'Down') #keysym Down stands for down, in this case
+
+
+# Ball's Movement
+ball.dx = 0.09
+ball.dy = 0.09
+
+#Main Game Loop
+
+while game_on:
+    wn.update()
+
+    #Move the ball
+    ball.setx(ball.xcor() + ball.dx)
+    ball.sety(ball.ycor() + ball.dy)
+
+    #Vertical border checking
+    if ball.ycor() > 280:
+        ball.sety(280) #set superior limit of border for y
+        ball.dy *= -1 #reverses direction of the ball
+        play_sound()
+    if ball.ycor() < -280:
+        ball.sety(-280) #set inferior limite of border for y
+        ball.dy *= -1
+        play_sound()
+    #Horizontal border checking
+    if ball.xcor() > 380: #right limit of border for x
+        ball.goto(0,0)
+        ball.dx *= -1
+        score_a += 1
+        pen.clear()
+        write()
+        play_sound()
+    if ball.xcor() < -380: #left limit of border for x
+        ball.goto(0,0)
+        ball.dx *= -1
+        score_b += 1
+        pen.clear()
+        write()
+        play_sound()
+    #Paddle and ball collisions
+    if (ball.xcor() > 340
+            and (ball.ycor() < paddle_b.ycor() + 50
+         and ball.ycor() > paddle_b.ycor() - 50)):
+        #Basically, if the x coordinates of the ball show that it is inside the borders
+        #and they collide with the same y coordinates(and width) of the paddles
+        #then if should reverse its position
+        ball.dx *= -1
+
+        play_sound()
+    if (ball.xcor() < -340
+            and (ball.ycor() < paddle_a.ycor() + 50
+            and ball.ycor() > paddle_a.ycor() - 50)):
+        ball.dx *= -1
+
+        play_sound()
+    #In here, it's the same thing but with the left paddle
+
